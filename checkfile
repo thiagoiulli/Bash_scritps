@@ -1,0 +1,34 @@
+#!/bin/sh
+
+if [ $# = 0 ]; then
+   echo "Usar: ./checkfile [Arquivo]"
+else
+   if  [ -e $1 ]; then
+      echo -n $1": "
+      if [ -d $1 ]; then
+	echo -n "diretório ("
+      elif [ -f $1 ]; then
+	echo -n "arquivo ("
+      else
+	echo "desconhecido ("
+      fi
+      if [ -r $1 ]; then
+	echo -n r
+      else
+	echo -n "-"
+      fi
+      if [ -w $1 ]; then
+	echo -n w
+      else
+	echo -n "-"
+      fi 
+      if [ -x $1 ]; then
+	echo -n x
+      else
+	echo -n "-"
+      fi
+      echo ")"
+   else
+      echo $1": inválido"
+   fi
+fi

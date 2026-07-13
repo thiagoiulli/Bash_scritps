@@ -1,0 +1,13 @@
+#!/bin/sh
+
+nome=$(grep $(whoami) /etc/passwd | awk -F ":" '{print $5}')
+
+hora=$(date | awk -F " " '{ print $5}' | cut -d ":" -f 1)
+
+if [ $hora -lt 12 ]; then
+   echo "Bom dia $nome, seja bem vindo."
+elif [ $hora -lt 18 ]; then
+   echo "Boa tarde $nome, seja bem vindo."
+else
+   echo "Boa noite $nome, seja bem vindo."
+fi

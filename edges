@@ -1,0 +1,14 @@
+#!/bin/sh
+
+maior=0
+menor=99999999
+for arg; do
+	if [[ $arg < $menor ]]; then
+		menor=$arg;
+	elif [[ $arg > $maior ]]; then
+		maior=$arg;
+	fi
+done
+
+echo "Lower: $menor"
+echo "Higher: $maior"

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+i=1
+$users = cat /etc/passwd
+for user in in $(cut -d: -f1 /etc/passwd); do
+	echo "User $i: $user"
+	((i++))
+done

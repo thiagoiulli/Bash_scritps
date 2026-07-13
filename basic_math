@@ -1,0 +1,24 @@
+#!/bin/sh
+
+trap '' 2 20
+
+num1=$(((RANDOM % 999)+1))
+num2=$(((RANDOM % 999)+1))
+ops=("+" "-")
+
+op=${ops[$((RANDOM % 2))]}
+
+echo "  $num1"
+echo "$op $num2"
+echo "-----"
+echo -n "?"
+read result
+
+until [[ $result = $(( $num1 $op $num2 )) ]]; do
+	echo "Wrong answer"
+	#echo $(( $num1 $op $num2 ))
+	echo -n "?"
+	read result
+done
+
+echo "Right Answer"

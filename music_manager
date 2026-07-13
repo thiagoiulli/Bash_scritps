@@ -1,0 +1,90 @@
+#!/bin/bash
+
+readonly dir=$1
+
+#verifica se mediainfo esta instalado, é necessário para o script funcionar
+command -v mediainfo &> /dev/null || { echo -e "\e[31mError: Please install mediainfo to use this script\e[37m" >&2; kill -s 15 $$; };
+
+echo "" > "$dir/output.txt" #cria o arquivo output.txt, fazendo ele ficar em branco caso ja exista
+
+if [[ ! -w "${dir:?Error: Output not set}" ]]; then #verifica se $1 foi passada como argumento e se tem permissoes
+    chmod +w "$dir";
+    if [[ $? -ne 0 ]]; then
+        echo -e "\e[31mError: $file is not writable!\e[37m" >&2;
+        exit 1;
+    fi
+fi
+
+option=-1
+echo "Select the desired folder structure:"
+echo "#1 - Autor/Album/Musica"
+echo "#2 - Album/Autor - Musica"
+echo "#3 - Autor/Album/Autor - Musica"
+echo "#4 - Album/Musica"
+echo "#5 - Autor/Album - Musica"
+echo "#0 - Sair"
+read option
+
+for file in $dir/*; do
+    if [[ $(file -b --mime-type "$file") == audio/* ]]; then #filter for songs
+        autor=$(mediainfo "$file" | grep Performer | head -n 1 | sed -E "s/^(.*): (.*)$/\2/");
+        album=$(mediainfo "$file" | grep Album | head -n 1 | sed -E "s/^(.*): (.*)$/\2/");
+        song=$(mediainfo "$file" | grep Title | head -n 1 | sed -E "s/^(.*): (.*)$/\2/");
+        extension=$(basename "$file" | awk -F. '{print $NF}');
+        if [[ $extension == "m3u8" ]]; then #m3u8 not a song but its mimetype is audio/x-mpegurl
+            continue
+        fi
+        if [[ -z $autor || -z $album || -z $song ]]; then #check if all metadata needed is found
+            echo -e "\e[33mWarning: No metadata for file: $file\e[37m" >&2 | tee -a "$dir/output.txt";
+            continue; #skip those files which have metadata missing.
+        fi
+        case $option in #move according to the folder structure selected
+            1)
+                if [[ ! -d "$dir/$autor/$album" ]]; then
+                    mkdir -p "$dir/$autor/$album";
+                fi
+                mv "$file" "$dir/$autor/$album/$song.$extension";
+                echo "Success: moved song $file to $dir/$autor/$album/$song.$extension" | tee -a "$dir/output.txt";
+                ;;
+            2)
+                if [[ ! -d "$dir/$album" ]]; then
+                    mkdir -p "$dir/$album";
+                fi
+                mv "$file" "$dir/$album/$autor - $song.$extension";
+                echo "Success: moved song $file to $dir/$album/$autor - $song.$extension" | tee -a "$dir/output.txt";
+                ;;
+            3)
+                if [[ ! -d "$dir/$autor/$album" ]]; then
+                    mkdir -p "$dir/$autor/$album";
+                fi
+                mv "$file" "$dir/$autor/$album/$autor - $song.$extension";
+                echo "Success: moved song $file to $dir/$autor/$album/$autor - $song.$extension" | tee -a "$dir/output.txt";
+                ;;
+            4)
+                if [[ ! -d "$dir/$album" ]]; then
+                    mkdir -p "$dir/$album";
+                fi
+                mv "$file" "$dir/$album/$song.$extension";
+                echo "Success: moved song $file to $dir/$album/$song.$extension" | tee -a "$dir/output.txt";
+                ;;
+            5)
+                if [[ ! -d "$dir/$autor" ]]; then
+                    mkdir -p "$dir/$autor";
+                fi
+                mv "$file" "$dir/$autor/$album - $song.$extension";
+                echo "Success: moved song $file to $dir/$autor/$album - $song.$extension" | tee -a "$dir/output.txt";
+                ;;
+            0)
+                echo "Goodbye!";
+                exit 0;
+                ;;
+            *)
+                echo -e "\e[31mInvalid option, please select a valid number!\e[37m";
+                exit 2;
+                ;;
+        esac
+    fi
+done
+
+echo -e "\e[32mDone! check output.txt for log\e[30m";01
+

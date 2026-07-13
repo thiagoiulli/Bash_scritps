@@ -1,0 +1,14 @@
+#!/bin/bash
+
+while read -r linha; do
+	if [[ -z "linha" ]]; then
+		break
+	fi
+	trimmed=$(echo "$linha" | sed 's/[^A-Za-z]//g' | tr [[:upper:]] [[:lower:]])
+	invertida=$(echo "$trimmed" | rev)
+	if [[ "$trimmed" = "$invertida" ]]; then
+		echo "Yes"
+	else
+		echo "No"
+	fi
+done

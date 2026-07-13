@@ -1,0 +1,8 @@
+#!/bin/sh
+for day in Mon Tue Wed Thu Fri Sat Sun; do
+	if [[ $day = "Sat" || $day = "Sun" ]]; then
+		echo "$day (Weenkend)"
+	else
+		echo "$day (Weekday)"
+	fi
+done
